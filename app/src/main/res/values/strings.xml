@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">NYTimesArticlesSearch</string>
+
+    <string name="action_search">Search</string>
+    <string name="action_filter">Filter</string>
+
+    <string name="app_name">NY Times</string>
     <string name="action_settings">Settings</string>
 </resources>
