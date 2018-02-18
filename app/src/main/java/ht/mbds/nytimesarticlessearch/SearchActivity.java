@@ -111,7 +111,7 @@ public class SearchActivity extends AppCompatActivity
 
                 CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder(customTabActivityHelper.getSession());
 
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_share_black_24dp);
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_name);
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
@@ -126,8 +126,6 @@ public class SearchActivity extends AppCompatActivity
 
                 intentBuilder.setActionButton(bitmap, "Share Link", pendingIntent, true);
 
-                intentBuilder.setCloseButtonIcon(
-                        BitmapFactory.decodeResource(getResources(), R.drawable.ic_arrow_back_black_24dp));
 
                 intentBuilder.setStartAnimations(SearchActivity.this, R.anim.slide_in_right, R.anim.slide_out_left);
                 intentBuilder.setExitAnimations(SearchActivity.this, android.R.anim.slide_in_left,
