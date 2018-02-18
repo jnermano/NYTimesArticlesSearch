@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/action_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_search_black_24dp"
         android:orderInCategory="5"
         android:title="@string/action_search"
         app:actionViewClass="android.support.v7.widget.SearchView"
@@ -15,6 +15,6 @@
         android:id="@+id/action_filter"
         android:orderInCategory="100"
         android:title="@string/action_filter"
-        android:icon="@drawable/filter32"
+        android:icon="@drawable/ic_filter_list_black_24dp"
         app:showAsAction="ifRoom" />
 </menu>

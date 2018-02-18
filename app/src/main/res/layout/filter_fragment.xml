@@ -16,25 +16,55 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="5dp"
             android:text="@string/begin_date"/>
 
-        <TextView
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:padding="0dp"
             android:background="@android:drawable/edit_text"
-            android:layout_marginBottom="5dp"
-            android:id="@+id/filter_frag_tv_begin_date"/>
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="38dp"
+                android:gravity="center_vertical"
+                android:textColor="#000"
+                android:paddingLeft="10dp"
+                android:hint="@string/date_format"
+                android:id="@+id/filter_frag_tv_begin_date"/>
+
+            <Button
+                android:layout_width="60dp"
+                android:layout_height="38dp"
+                android:paddingLeft="15dp"
+                android:background="@android:color/transparent"
+                android:drawableLeft="@drawable/ic_close_black_24dp"
+                android:id="@+id/filter_frag_btn_clear_begin_date"/>
+
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="5dp"
             android:text="@string/sort_order"/>
 
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:entries="@array/sort"
             android:background="@drawable/spinner_back"
             android:id="@+id/filter_frag_sp_sort"/>
@@ -43,6 +73,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="5dp"
             android:text="@string/news_desk"/>
 
         <LinearLayout
@@ -50,7 +83,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:id="@+id/filter_frag_ll_news_desk"
-            android:layout_marginBottom="5dp">
+            android:layout_marginBottom="10dp">
 
         </LinearLayout>
 

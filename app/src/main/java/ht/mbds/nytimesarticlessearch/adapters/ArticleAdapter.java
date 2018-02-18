@@ -12,7 +12,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import ht.mbds.nytimesarticlessearch.R;
-import ht.mbds.nytimesarticlessearch.model.Article;
+import ht.mbds.nytimesarticlessearch.models.Article;
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
 /**
@@ -66,14 +66,14 @@ public class ArticleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         switch (holder.getItemViewType()) {
             case WITH_IMAGE:
                 ViewHolderWithImage viewHolderWithImage = (ViewHolderWithImage) holder;
-                viewHolderWithImage.getItem_headline().setText(article.getHeadline());
-                viewHolderWithImage.getItem_snippet().setText(article.getSnippet());
+                viewHolderWithImage.getItemHeadline().setText(article.getHeadline());
+                viewHolderWithImage.getItemSnippet().setText(article.getSnippet());
 
                 Picasso.with(getContext())
                         .load("https://www.nytimes.com/" + article.getThumbnail())
-                        .placeholder(R.drawable.loading)
+                        .placeholder(R.drawable.ic_perm_media_black_75dp)
                         .transform(new RoundedCornersTransformation(10, 10))
-                        .into(viewHolderWithImage.getItem_img(), new Callback() {
+                        .into(viewHolderWithImage.getItemImg(), new Callback() {
                             @Override
                             public void onSuccess() {
 
@@ -88,8 +88,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 break;
             case WITHOUT_IMAGE:
                 ViewHolderWithoutImage viewHolderWithoutImage = (ViewHolderWithoutImage) holder;
-                viewHolderWithoutImage.getItem_headline().setText(article.getHeadline());
-                viewHolderWithoutImage.getItem_snippet().setText(article.getSnippet());
+                viewHolderWithoutImage.getItemHeadline().setText(article.getHeadline());
+                viewHolderWithoutImage.getItemSnippet().setText(article.getSnippet());
                 break;
         }
     }

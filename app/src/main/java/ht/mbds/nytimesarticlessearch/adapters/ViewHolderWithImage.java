@@ -17,40 +17,40 @@ import ht.mbds.nytimesarticlessearch.R;
 public class ViewHolderWithImage extends RecyclerView.ViewHolder {
 
     @BindView(R.id.item_img)
-    ImageView item_img;
+    ImageView itemImg;
 
     @BindView(R.id.item_headline)
-    TextView item_headline;
+    TextView itemHeadline;
 
     @BindView(R.id.item_snippet)
-    TextView item_snippet;
+    TextView itemSnippet;
 
     public ViewHolderWithImage(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }
 
-    public ImageView getItem_img() {
-        return item_img;
+    public ImageView getItemImg() {
+        return itemImg;
     }
 
-    public void setItem_img(ImageView item_img) {
-        this.item_img = item_img;
+    public void setItemImg(ImageView itemImg) {
+        this.itemImg = itemImg;
     }
 
-    public TextView getItem_headline() {
-        return item_headline;
+    public TextView getItemHeadline() {
+        return itemHeadline;
     }
 
-    public void setItem_headline(TextView item_headline) {
-        this.item_headline = item_headline;
+    public void setItemHeadline(TextView itemHeadline) {
+        this.itemHeadline = itemHeadline;
     }
 
-    public TextView getItem_snippet() {
-        return item_snippet;
+    public TextView getItemSnippet() {
+        return itemSnippet;
     }
 
-    public void setItem_snippet(TextView item_snippet) {
-        this.item_snippet = item_snippet;
+    public void setItemSnippet(TextView itemSnippet) {
+        this.itemSnippet = itemSnippet;
     }
 }

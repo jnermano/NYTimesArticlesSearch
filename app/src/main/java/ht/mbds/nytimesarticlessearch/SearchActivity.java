@@ -1,9 +1,11 @@
 package ht.mbds.nytimesarticlessearch;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
@@ -18,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,7 +34,10 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ht.mbds.nytimesarticlessearch.adapters.ArticleAdapter;
-import ht.mbds.nytimesarticlessearch.model.Article;
+import ht.mbds.nytimesarticlessearch.customtab.CustomTabActivityHelper;
+import ht.mbds.nytimesarticlessearch.customtab.WebviewFallback;
+import ht.mbds.nytimesarticlessearch.fragments.FilterFragment;
+import ht.mbds.nytimesarticlessearch.models.Article;
 import ht.mbds.nytimesarticlessearch.utils.EndlessRecyclerViewScrollListener;
 import ht.mbds.nytimesarticlessearch.utils.ItemClickSupport;
 import okhttp3.Call;
@@ -41,7 +47,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class SearchActivity extends AppCompatActivity implements FilterFragment.FilterFragmentListener {
+public class SearchActivity extends AppCompatActivity
+        implements FilterFragment.FilterFragmentListener,
+        CustomTabActivityHelper.ConnectionCallback{
 
     @BindView(R.id.rvItems)
     RecyclerView rvArticles;
@@ -52,10 +60,14 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
 
     EndlessRecyclerViewScrollListener scrollListener;
 
-    String query_filter;
-    String begin_date;
-    String sort_order;
-    String news_desk;
+    // Filter variables
+    String queryFilter;
+    String beginDate;
+    String sortOrder;
+    String newsDesk;
+
+
+    private CustomTabActivityHelper customTabActivityHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,12 +107,11 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
 
-                String url = adapter.getArticle(position).getWeb_url();
+                String url = adapter.getArticle(position).getWebUrl();
 
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder(customTabActivityHelper.getSession());
 
-                //builder.addDefaultShareMenuItem();
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_name);
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_share_black_24dp);
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
@@ -113,10 +124,17 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
                         intent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
-                builder.setActionButton(bitmap, "Share Link", pendingIntent, true);
+                intentBuilder.setActionButton(bitmap, "Share Link", pendingIntent, true);
 
-                CustomTabsIntent customTabsIntent = builder.build();
-                customTabsIntent.launchUrl(SearchActivity.this, Uri.parse(url));
+                intentBuilder.setCloseButtonIcon(
+                        BitmapFactory.decodeResource(getResources(), R.drawable.ic_arrow_back_black_24dp));
+
+                intentBuilder.setStartAnimations(SearchActivity.this, R.anim.slide_in_right, R.anim.slide_out_left);
+                intentBuilder.setExitAnimations(SearchActivity.this, android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right);
+
+                CustomTabActivityHelper.openCustomTab(
+                        SearchActivity.this, intentBuilder.build(), Uri.parse(url), new WebviewFallback());
 
             }
         });
@@ -124,6 +142,27 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         /// First load of data
         loadNextDataFromApi(0);
 
+        customTabActivityHelper = new CustomTabActivityHelper();
+        customTabActivityHelper.setConnectionCallback(this);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        customTabActivityHelper.setConnectionCallback(null);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        customTabActivityHelper.bindCustomTabsService(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        customTabActivityHelper.unbindCustomTabsService(this);
     }
 
 
@@ -139,29 +178,38 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         urlBuilder.addQueryParameter("api-key", getResources().getString(R.string.api_key));
         urlBuilder.addQueryParameter("page", offset + "");
 
-        if (query_filter != null) {
-            urlBuilder.addQueryParameter("query", query_filter);
+        if (queryFilter != null) {
+            urlBuilder.addQueryParameter("query", queryFilter);
         }
 
-        if (begin_date != null && begin_date.length() == 8)
-            urlBuilder.addQueryParameter("begin_date", begin_date);
+        if (beginDate != null && beginDate.length() == 10)
+            urlBuilder.addQueryParameter("begin_date", beginDate.replace("-", ""));
 
-        if (sort_order != null)
-            urlBuilder.addQueryParameter("sort", sort_order);
+        if (sortOrder != null)
+            urlBuilder.addQueryParameter("sort", sortOrder);
 
-        if (news_desk != null)
-            urlBuilder.addQueryParameter("fq", String.format(Locale.US, "news_desk:(%s)", news_desk));
+        if (newsDesk != null && newsDesk.length() > 0)
+            urlBuilder.addQueryParameter("fq", String.format(Locale.US, "news_desk:(%s)", newsDesk));
 
         String url = urlBuilder.build().toString();
+
+        Log.v("query", url);
 
         Request request = new Request.Builder()
                 .url(url)
                 .build();
 
+        final ProgressDialog pd = new ProgressDialog(this);
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+
+        if (offset == 0)
+            pd.show();
+
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                pd.dismiss();
             }
 
             @Override
@@ -181,9 +229,9 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
 
                             List<Article> response_articles = Article.fromJson(jsonArrayDoc);
 
-                            articles.addAll(response_articles);
-
                             int curSize = adapter.getItemCount();
+
+                            articles.addAll(response_articles);
 
                             adapter.notifyItemRangeInserted(curSize, response_articles.size());
 
@@ -194,6 +242,8 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                pd.dismiss();
             }
         });
 
@@ -211,22 +261,29 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setBackgroundResource(android.R.drawable.edit_text);
 
+        ((EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setTextColor(Color.BLUE);
+        ((EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setHintTextColor(Color.GRAY);
 
-
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
-            public boolean onClose() {
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
 
-                query_filter = null;
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                queryFilter = null;
 
                 resetEndlessScrollState();
 
                 loadNextDataFromApi(0);
 
-                return false;
+                return true;
             }
         });
+
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -238,7 +295,7 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
 
                 searchView.clearFocus();
 
-                query_filter = query;
+                queryFilter = query;
 
                 resetEndlessScrollState();
 
@@ -285,23 +342,23 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
      */
     private void showFilterDialog(){
         FragmentManager fm = getSupportFragmentManager();
-        FilterFragment filterFragment = FilterFragment.newInstance("filter");
+        FilterFragment filterFragment = FilterFragment.newInstance("filter", beginDate, sortOrder, newsDesk);
         filterFragment.show(fm, "filter_fragment");
     }
 
 
     /**
      * Listen for filter submited by user
-     * @param begin_date
-     * @param sort
-     * @param news_desk
+     * @param bDate
+     * @param order
+     * @param nDesk
      */
     @Override
-    public void onSubmitFilters(String begin_date, String sort, String news_desk) {
-        Log.v("filters", String.format(Locale.US, "%s - %s - %s", begin_date, sort, news_desk));
-        this.begin_date  = begin_date;
-        this.sort_order = sort;
-        this.news_desk = news_desk;
+    public void onSubmitFilters(String bDate, String order, String nDesk) {
+        Log.v("filters", String.format(Locale.US, "%s - %s - %s", bDate, order, nDesk));
+        this.beginDate  = bDate;
+        this.sortOrder = order;
+        this.newsDesk = nDesk;
 
         resetEndlessScrollState();
 
@@ -336,4 +393,13 @@ public class SearchActivity extends AppCompatActivity implements FilterFragment.
         return false;
     }
 
+    @Override
+    public void onCustomTabsConnected() {
+        Log.v("Search Activity", "Custom Tabs Connected");
+    }
+
+    @Override
+    public void onCustomTabsDisconnected() {
+        Log.v("Search Activity", "Custom Tabs Disconnected");
+    }
 }

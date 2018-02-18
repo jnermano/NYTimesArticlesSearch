@@ -16,6 +16,8 @@
 
     <string name="api_key">f8f939ce5406400e8966c02847ffa1f0</string>
 
+    <string name="date_format">yyyy-mm-dd</string>
+
     <string name="action_search">Search</string>
     <string name="action_filter">Filter</string>
 
