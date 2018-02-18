@@ -36,13 +36,13 @@ public class Article {
 
             for (int i = 0; i < jsonArrayMultimedia.length(); i++) {
                 JSONObject jsonObjectMedia = jsonArrayMultimedia.getJSONObject(i);
-                if (jsonObjectMedia.getString("subtype").equals("thumbnail")) {
-                    article.setThumbnail(jsonObjectMedia.getString("thumbnail"));
+                if (jsonObjectMedia.getString("subtype").equals("xlarge")) {
+                    article.setThumbnail(jsonObjectMedia.getString("url"));
                     break;
                 }
             }
 
-            
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

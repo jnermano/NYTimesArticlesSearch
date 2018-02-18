@@ -1,5 +1,21 @@
 <resources>
 
+    <string name="begin_date">Begin date</string>
+    <string name="sort_order">Sort order</string>
+    <string name="news_desk">News desk values</string>
+    <string-array name="news_desk_values">
+        <item>Arts</item>
+        <item>Movies</item>
+        <item>Sports</item>
+    </string-array>
+
+    <string-array name="sort">
+        <item>newest</item>
+        <item>oldest</item>
+    </string-array>
+
+    <string name="api_key">f8f939ce5406400e8966c02847ffa1f0</string>
+
     <string name="action_search">Search</string>
     <string name="action_filter">Filter</string>
 
